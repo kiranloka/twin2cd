@@ -1,0 +1,13 @@
+[package]
+name = "forge-core"
+description = "Domain models and shared interfaces"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+forge-common = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }

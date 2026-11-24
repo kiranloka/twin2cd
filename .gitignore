@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Turbo
+.turbo/
+
+# Next.js
+.next/
+.next-dev/
+out/
+
+# Rust
+target/
+**/*.rs.bk
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# IDE & OS
+.idea/
+.vscode/
+.DS_Store
+*.log
+
+# Build artifacts
+dist/

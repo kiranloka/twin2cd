@@ -1,0 +1,22 @@
+[package]
+name = "forge-runner"
+description = "Forge execution plane worker"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "forge-runner"
+path = "src/main.rs"
+
+[dependencies]
+forge-common = { workspace = true }
+forge-core = { workspace = true }
+forge-executor = { workspace = true }
+forge-observability = { workspace = true }
+forge-protocol = { workspace = true }
+tokio-stream = { workspace = true }
+tonic = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }

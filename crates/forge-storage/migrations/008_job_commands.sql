@@ -1,0 +1,1 @@
+ALTER TABLE workflow_jobs ADD COLUMN command TEXT NOT NULL DEFAULT '';

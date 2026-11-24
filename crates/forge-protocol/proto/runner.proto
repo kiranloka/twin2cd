@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package forge.protocol.v1;
+
+service RunnerControl {
+  rpc Stream(stream RunnerFrame) returns (stream ControllerFrame);
+}
+
+message RunnerFrame {
+  oneof payload {
+    RunnerRegistration registration = 1;
+    RunnerHeartbeat heartbeat = 2;
+    JobLeaseRenewal lease_renewal = 3;
+    JobCompletionReport completion = 4;
+    RunLogLine log = 5;
+  }
+}
+
+message RunnerRegistration {
+  string runner_id = 1;
+  string name = 2;
+  string platform = 3;
+  string architecture = 4;
+  repeated string labels = 5;
+  repeated string executors = 6;
+  uint32 cpu = 7;
+  uint32 memory_mb = 8;
+  uint32 max_concurrent_jobs = 9;
+}
+
+message RunnerHeartbeat {
+  uint32 active_jobs = 1;
+  string status = 2;
+}
+
+message JobLeaseRenewal {
+  string job_id = 1;
+  string idempotency_key = 2;
+  uint64 extend_secs = 3;
+}
+
+message JobCompletionReport {
+  string job_id = 1;
+  string idempotency_key = 2;
+  int32 exit_code = 3;
+}
+
+message RunLogLine {
+  string run_id = 1;
+  string stream = 2;
+  string line = 3;
+}
+
+message ControllerFrame {
+  oneof payload {
+    RegistrationAccepted registration = 1;
+    JobAssignment assignment = 2;
+    OperationResult result = 3;
+  }
+}
+
+message RegistrationAccepted {
+  string runner_id = 1;
+  uint64 heartbeat_interval_secs = 2;
+}
+
+message JobAssignment {
+  string job_id = 1;
+  string run_id = 2;
+  string name = 3;
+  uint64 lease_ttl_secs = 4;
+  string idempotency_key = 5;
+    string command = 6;
+}
+
+message OperationResult {
+  bool ok = 1;
+  string message = 2;
+}

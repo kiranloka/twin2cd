@@ -1,0 +1,50 @@
+name: Signed release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build release binaries
+        run: cargo build --release -p forge-server -p forge-runner --features forge-server/otel,forge-server/postgres
+      - name: Package and checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/package
+          cp target/release/forge-server target/release/forge-runner dist/package/
+          cp Cargo.toml dist/package/
+          tar -C dist/package -czf "dist/forge-${GITHUB_REF_NAME}-linux-x86_64.tar.gz" .
+          cd dist
+          sha256sum "forge-${GITHUB_REF_NAME}-linux-x86_64.tar.gz" > SHA256SUMS
+      - uses: sigstore/cosign-installer@v4.1.0
+      - name: Sign release assets with GitHub OIDC
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          cosign sign-blob --yes \
+            --bundle "forge-${GITHUB_REF_NAME}-linux-x86_64.tar.gz.sigstore.json" \
+            "forge-${GITHUB_REF_NAME}-linux-x86_64.tar.gz"
+          cosign sign-blob --yes \
+            --bundle "SHA256SUMS.sigstore.json" \
+            SHA256SUMS
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "${GITHUB_REF_NAME}"
+          dist/forge-"${GITHUB_REF_NAME}"-linux-x86_64.tar.gz
+          dist/forge-"${GITHUB_REF_NAME}"-linux-x86_64.tar.gz.sigstore.json
+          dist/SHA256SUMS dist/SHA256SUMS.sigstore.json --generate-notes

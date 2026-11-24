@@ -1,0 +1,10 @@
+[package]
+name = "forge-bench"
+description = "Automated Forge benchmarks"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+forge-workflow = { workspace = true }
